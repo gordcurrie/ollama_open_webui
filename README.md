@@ -29,7 +29,7 @@ Before using the scripts and Makefile in this repository, ensure you have the fo
 
 2. Ensure that your shell scripts have executable permissions:
   ```sh
-  chmod +x ollama.sh open-webui.sh
+  chmod +x ollama.sh open-webui.sh post_update_ollama.sh
   ```
 
 ## Usage
@@ -39,8 +39,14 @@ Before using the scripts and Makefile in this repository, ensure you have the fo
   make restart-ollama
   ```
 
-2. Update and restart Open_WebUI
+2. Run post-update configuration for Ollama
   ```
-  make restart-open-webui
+  make ollama-post-update
+  ```
+  **Note**: Run this after updating Ollama via Homebrew (`brew upgrade ollama`). Ollama updates remove the `OLLAMA_HOST` environment variable, which prevents external access. This command restores the setting and restarts the service.
+
+3. Update and restart Open_WebUI
+  ```
+  make update-open-webui
   ```
 
