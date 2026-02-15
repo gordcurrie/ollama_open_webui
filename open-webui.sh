@@ -43,7 +43,7 @@ IMAGE_ID=$(podman images -q 'ghcr.io/open-webui/open-webui')
 
 if [ -n "$IMAGE_ID" ]; then
     echo "INFO: Removing existing image..."
-    if podman rmi "$IMAGE_ID" >/dev/null 2>&1; then
+    if podman rmi $IMAGE_ID >/dev/null 2>&1; then
         echo "SUCCESS: Image removed successfully"
     else
         echo "WARNING: Failed to remove image"
