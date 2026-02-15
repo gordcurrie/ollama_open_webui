@@ -92,7 +92,10 @@ run_test() {
     # We'll run them with a dry-run approach by checking if they would fail immediately
     local temp_output="$(mktemp -t script-smoke.XXXXXX)"
     local timeout_duration=5
-    timeout $timeout_duration ./"$script" > "$temp_output" 2>&1 &
+    
+    # Portable timeout implementation (background process + sleep + kill)
+    # This works on both Linux and macOS without requiring external timeout command
+    ./"$script" > "$temp_output" 2>&1 &
     local pid=$!
     
     # Wait briefly to see if script fails immediately due to configuration issues
@@ -114,8 +117,18 @@ run_test() {
         fi
     else
         # Process still running, likely doing real work - that's good for smoke test
-        kill $pid 2>/dev/null
+        # Kill the process after timeout to prevent it from running indefinitely
+        (sleep $((timeout_duration - initial_wait)) && kill $pid 2>/dev/null) &
+        local killer_pid=$!
+        
+        # Wait for the process to finish or be killed
         wait $pid 2>/dev/null
+        
+        # Clean up the killer process if it's still running
+        # (may have already completed if it successfully killed the main process)
+        kill $killer_pid 2>/dev/null
+        wait $killer_pid 2>/dev/null
+        
         echo -e "  ${GREEN}✓ PASSED${NC} - Script started successfully (validation passed)"
         PASSED_TESTS=$((PASSED_TESTS + 1))
     fi
