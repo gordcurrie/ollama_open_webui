@@ -24,7 +24,7 @@ if [ -n "$BREW_VERSION" ]; then
 fi
 
 # Check if ollama is installed
-if ! brew list | grep -q ollama; then
+if ! brew list --formula ollama >/dev/null 2>&1; then
     echo "ERROR: Ollama is not installed via Homebrew."
     exit 1
 fi
