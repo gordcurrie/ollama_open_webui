@@ -90,7 +90,7 @@ run_test() {
     
     # For scripts with dependencies available, do a quick validation run
     # We'll run them with a dry-run approach by checking if they would fail immediately
-    local temp_output=$(mktemp)
+    local temp_output="$(mktemp -t script-smoke.XXXXXX)"
     local timeout_duration=5
     timeout $timeout_duration ./"$script" > "$temp_output" 2>&1 &
     local pid=$!
