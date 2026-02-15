@@ -80,7 +80,7 @@ run_test() {
     
     # Check skip condition if provided
     if [ -n "$skip_condition" ]; then
-        if eval "$skip_condition"; then
+        if "$skip_condition"; then
             echo -e "  ${YELLOW}⊘ SKIPPED${NC} - Required dependency not available"
             SKIPPED_TESTS=$((SKIPPED_TESTS + 1))
             echo ""
