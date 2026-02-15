@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Script to restart Ollama service
 # Usage: ./ollama.sh
