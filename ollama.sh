@@ -4,7 +4,10 @@
 # Usage: ./ollama.sh
 
 # Set up basic logging
-LOG_FILE="/tmp/ollama-script.log"
+LOG_TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
+LOG_FILE="/tmp/ollama-script-${LOG_TIMESTAMP}.log"
+# Clean up old log files (older than 7 days)
+find /tmp -maxdepth 1 -type f -name 'ollama-script-*.log' -mtime +7 -delete >/dev/null 2>&1
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 echo "=== Ollama Service Restart ==="
