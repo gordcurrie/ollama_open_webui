@@ -9,15 +9,12 @@ LOG_FILE="/tmp/post-update-ollama-script.log"
 
 # POSIX-sh compatible logging function
 log() {
-    echo "$@" | tee -a "$LOG_FILE"
+    printf '%s\n' "$*" | tee -a "$LOG_FILE"
 }
 
 log_error() {
-    echo "$@" | tee -a "$LOG_FILE" >&2
+    printf '%s\n' "$*" | tee -a "$LOG_FILE" >&2
 }
-
-# Redirect stderr to log file
-exec 2>>"$LOG_FILE"
 
 log "=== Ollama Post-Update Configuration ==="
 log "Starting Ollama post-update configuration at $(date)"
