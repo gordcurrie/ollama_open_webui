@@ -59,3 +59,21 @@ Before using the scripts and Makefile in this repository, ensure you have the fo
    make update-open-webui
    ```
 
+## Scripts Features
+
+### ollama.sh
+Script to restart the Ollama service with proper error handling, logging, and version checking.
+
+### open-webui.sh
+Script to stop, remove, and restart the Open-WebUI container with comprehensive cleanup, logging, and version checking.
+
+### post_update_ollama.sh
+Script to restore the OLLAMA_HOST environment variable after Ollama updates with logging and version checking.
+
+## Logging
+
+All scripts now include logging functionality that:
+- Writes log entries to log files under `/tmp` (file names may vary by script and can include timestamps)
+- Provides detailed operational feedback
+- Outputs log-related messages to both the terminal and the log files for troubleshooting
+
