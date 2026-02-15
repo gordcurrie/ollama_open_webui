@@ -16,7 +16,7 @@ if ! command -v podman >/dev/null 2>&1; then
     exit 1
 fi
 
-# Check podman version (minimum recommended version)
+# Display podman version for informational purposes
 PODMAN_VERSION=$(podman --version 2>/dev/null | cut -d' ' -f3)
 if [ -n "$PODMAN_VERSION" ]; then
     echo "INFO: Podman version $PODMAN_VERSION installed"

@@ -19,7 +19,7 @@ if ! command -v brew >/dev/null 2>&1; then
     exit 1
 fi
 
-# Check brew version (minimum recommended version)
+# Display brew version for informational purposes
 BREW_VERSION=$(brew --version 2>/dev/null | head -1 | cut -d' ' -f2)
 if [ -n "$BREW_VERSION" ]; then
     echo "INFO: Homebrew version $BREW_VERSION installed"
