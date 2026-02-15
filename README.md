@@ -73,7 +73,7 @@ Script to restore the OLLAMA_HOST environment variable after Ollama updates with
 ## Logging
 
 All scripts now include logging functionality that:
-- Records all operations in timestamped log files
+- Appends log entries (with timestamps) to fixed log files under `/tmp`
 - Provides detailed operational feedback
 - Outputs to both terminal and log files for troubleshooting
 
