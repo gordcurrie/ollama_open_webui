@@ -7,7 +7,7 @@
 # Set up basic logging
 LOG_FILE="/tmp/post-update-ollama-script.log"
 
-# POSIX-sh compatible logging function
+# Logging function used by this script
 log() {
     printf '%s\n' "$*" | tee -a "$LOG_FILE"
 }
