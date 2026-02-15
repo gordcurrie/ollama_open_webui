@@ -6,26 +6,37 @@
 
 # Set up basic logging
 LOG_FILE="/tmp/post-update-ollama-script.log"
-exec > >(tee -a "$LOG_FILE") 2>&1
 
-echo "=== Ollama Post-Update Configuration ==="
-echo "Starting Ollama post-update configuration at $(date)"
+# POSIX-sh compatible logging function
+log() {
+    echo "$@" | tee -a "$LOG_FILE"
+}
+
+log_error() {
+    echo "$@" | tee -a "$LOG_FILE" >&2
+}
+
+# Redirect stderr to log file
+exec 2>>"$LOG_FILE"
+
+log "=== Ollama Post-Update Configuration ==="
+log "Starting Ollama post-update configuration at $(date)"
 
 # Check if brew is installed
 if ! command -v brew >/dev/null 2>&1; then
-    echo "ERROR: Homebrew is not installed. Please install Homebrew first."
+    log_error "ERROR: Homebrew is not installed. Please install Homebrew first."
     exit 1
 fi
 
 # Check brew version (minimum recommended version)
 BREW_VERSION=$(brew --version 2>/dev/null | head -1 | cut -d' ' -f2)
 if [ -n "$BREW_VERSION" ]; then
-    echo "INFO: Homebrew version $BREW_VERSION installed"
+    log "INFO: Homebrew version $BREW_VERSION installed"
 fi
 
 # Check if ollama is installed
 if ! brew list --formula ollama >/dev/null 2>&1; then
-    echo "ERROR: Ollama is not installed via Homebrew."
+    log_error "ERROR: Ollama is not installed via Homebrew."
     exit 1
 fi
 
@@ -34,31 +45,31 @@ PLIST_PATH="$(brew --prefix)/opt/ollama/homebrew.mxcl.ollama.plist"
 
 # Verify the plist file exists
 if [ ! -f "$PLIST_PATH" ]; then
-    echo "ERROR: Ollama plist file not found at $PLIST_PATH"
+    log_error "ERROR: Ollama plist file not found at $PLIST_PATH"
     exit 1
 fi
 
-echo "INFO: Configuring OLLAMA_HOST environment variable..."
+log "INFO: Configuring OLLAMA_HOST environment variable..."
 
 # Try to set the value (works for both existing and new entries)
 if /usr/libexec/PlistBuddy -c "Set EnvironmentVariables:OLLAMA_HOST 0.0.0.0" "$PLIST_PATH" 2>/dev/null; then
-    echo "SUCCESS: Updated existing OLLAMA_HOST to 0.0.0.0"
+    log "SUCCESS: Updated existing OLLAMA_HOST to 0.0.0.0"
 else
     # If the key doesn't exist, add it
     if /usr/libexec/PlistBuddy -c "Add EnvironmentVariables:OLLAMA_HOST string 0.0.0.0" "$PLIST_PATH" 2>/dev/null; then
-        echo "SUCCESS: Added OLLAMA_HOST=0.0.0.0"
+        log "SUCCESS: Added OLLAMA_HOST=0.0.0.0"
     else
-        echo "ERROR: Failed to configure OLLAMA_HOST environment variable"
+        log_error "ERROR: Failed to configure OLLAMA_HOST environment variable"
         exit 1
     fi
 fi
 
-echo "INFO: Restarting Ollama service..."
+log "INFO: Restarting Ollama service..."
 if brew services restart ollama; then
-    echo "SUCCESS: Ollama service restarted successfully"
+    log "SUCCESS: Ollama service restarted successfully"
 else
-    echo "ERROR: Failed to restart Ollama service"
+    log_error "ERROR: Failed to restart Ollama service"
     exit 1
 fi
 
-echo "=== Ollama Post-Update Configuration Complete ==="
+log "=== Ollama Post-Update Configuration Complete ==="
