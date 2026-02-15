@@ -125,6 +125,7 @@ run_test() {
         wait $pid 2>/dev/null
         
         # Clean up the killer process if it's still running
+        # (may have already completed if it successfully killed the main process)
         kill $killer_pid 2>/dev/null
         wait $killer_pid 2>/dev/null
         
