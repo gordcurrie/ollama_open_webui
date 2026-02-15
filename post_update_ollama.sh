@@ -13,7 +13,9 @@ log() {
 }
 
 log_error() {
-    printf '%s\n' "$*" | tee -a "$LOG_FILE" >&2
+    # Write to both stderr and log file
+    printf '%s\n' "$*" >&2
+    printf '%s\n' "$*" >> "$LOG_FILE"
 }
 
 log "=== Ollama Post-Update Configuration ==="
