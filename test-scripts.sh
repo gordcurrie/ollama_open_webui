@@ -28,6 +28,19 @@ check_syntax() {
     return $?
 }
 
+# Dependency check functions
+has_brew_and_ollama_service() {
+    command -v brew >/dev/null 2>&1 && brew services list | grep -q ollama
+}
+
+has_podman() {
+    command -v podman >/dev/null 2>&1
+}
+
+has_brew_and_ollama_formula() {
+    command -v brew >/dev/null 2>&1 && brew list --formula ollama >/dev/null 2>&1
+}
+
 # Function to run a test
 run_test() {
     local test_name="$1"
@@ -68,7 +81,7 @@ run_test() {
     # Check skip condition if provided
     if [ -n "$skip_condition" ]; then
         if eval "$skip_condition"; then
-            echo -e "  ${YELLOW}⊘ SKIPPED${NC} - Dependency not available (would fail in actual execution)"
+            echo -e "  ${YELLOW}⊘ SKIPPED${NC} - Required dependency not available"
             SKIPPED_TESTS=$((SKIPPED_TESTS + 1))
             echo ""
             return 0
@@ -78,11 +91,14 @@ run_test() {
     # For scripts with dependencies available, do a quick validation run
     # We'll run them with a dry-run approach by checking if they would fail immediately
     local temp_output=$(mktemp)
-    timeout 5 ./"$script" > "$temp_output" 2>&1 &
+    local timeout_duration=5
+    timeout $timeout_duration ./"$script" > "$temp_output" 2>&1 &
     local pid=$!
     
-    # Wait a moment to see if script fails immediately
-    sleep 2
+    # Wait briefly to see if script fails immediately due to configuration issues
+    # This gives the script enough time to validate dependencies and start initial operations
+    local initial_wait=2
+    sleep $initial_wait
     
     if ! kill -0 $pid 2>/dev/null; then
         # Process already exited, check exit code
@@ -113,13 +129,13 @@ echo "Running smoke tests..."
 echo ""
 
 # Test 1: ollama.sh
-run_test "ollama.sh restart test" "ollama.sh" "! command -v brew >/dev/null 2>&1 || ! brew services list | grep -q ollama"
+run_test "ollama.sh restart test" "ollama.sh" "! has_brew_and_ollama_service"
 
 # Test 2: open-webui.sh
-run_test "open-webui.sh container update test" "open-webui.sh" "! command -v podman >/dev/null 2>&1"
+run_test "open-webui.sh container update test" "open-webui.sh" "! has_podman"
 
 # Test 3: post_update_ollama.sh
-run_test "post_update_ollama.sh configuration test" "post_update_ollama.sh" "! command -v brew >/dev/null 2>&1 || ! brew list --formula ollama >/dev/null 2>&1"
+run_test "post_update_ollama.sh configuration test" "post_update_ollama.sh" "! has_brew_and_ollama_formula"
 
 # Print summary
 echo "=============================="
