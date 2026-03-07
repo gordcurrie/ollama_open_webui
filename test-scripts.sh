@@ -42,6 +42,8 @@ has_brew_and_ollama_formula() {
 }
 
 # Function to run a test
+# skip_condition should be the name of a function (without quotes) that returns 0 when dependencies are
+# available and the test should run, and non-zero when the test should be skipped
 run_test() {
     local test_name="$1"
     local script="$2"
@@ -78,9 +80,15 @@ run_test() {
         return 1
     fi
     
-    # Check skip condition if provided
+    # Check skip condition if provided (call the function by name)
     if [ -n "$skip_condition" ]; then
-        if "$skip_condition"; then
+        if ! declare -F "$skip_condition" >/dev/null 2>&1; then
+            echo -e "  ${RED}✗ FAILED${NC} - Unknown skip condition function: $skip_condition"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+            echo ""
+            return 1
+        fi
+        if ! "$skip_condition"; then
             echo -e "  ${YELLOW}⊘ SKIPPED${NC} - Required dependency not available"
             SKIPPED_TESTS=$((SKIPPED_TESTS + 1))
             echo ""
@@ -142,13 +150,13 @@ echo "Running smoke tests..."
 echo ""
 
 # Test 1: ollama.sh
-run_test "ollama.sh restart test" "ollama.sh" "! has_brew_and_ollama_service"
+run_test "ollama.sh restart test" "ollama.sh" "has_brew_and_ollama_service"
 
 # Test 2: open-webui.sh
-run_test "open-webui.sh container update test" "open-webui.sh" "! has_podman"
+run_test "open-webui.sh container update test" "open-webui.sh" "has_podman"
 
 # Test 3: post_update_ollama.sh
-run_test "post_update_ollama.sh configuration test" "post_update_ollama.sh" "! has_brew_and_ollama_formula"
+run_test "post_update_ollama.sh configuration test" "post_update_ollama.sh" "has_brew_and_ollama_formula"
 
 # Print summary
 echo "=============================="

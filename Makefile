@@ -22,11 +22,17 @@ update-open-webui:
 	@echo "Updating open-webui container..."
 	@bash $(UPDATE_OPEN_WEBUI_SCRIPT)
 
+# Target to run smoke tests
+test:
+	@echo "Running smoke tests..."
+	@bash test-scripts.sh
+
 # Help target to display available commands
 help:
 	@echo "Available commands:"
 	@echo "  make restart-ollama      - Restart Ollama service"
 	@echo "  make ollama-post-update  - Run Ollama post-update script"
 	@echo "  make update-open-webui   - Update and run the open-webui container"
+	@echo "  make test                - Run smoke tests"
 
-.PHONY: all restart-ollama ollama-post-update update-open-webui help
+.PHONY: all restart-ollama ollama-post-update update-open-webui test help

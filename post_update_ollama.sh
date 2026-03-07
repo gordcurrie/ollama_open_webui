@@ -1,11 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to configure OLLAMA_HOST environment variable after Ollama updates
 # This resolves an issue where Homebrew updates remove the OLLAMA_HOST variable
 # Usage: ./post_update_ollama.sh
 
 # Set up basic logging
-LOG_FILE="/tmp/post-update-ollama-script.log"
+LOG_TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
+LOG_FILE="/tmp/post-update-ollama-script-${LOG_TIMESTAMP}.log"
+# Clean up old log files (older than 7 days)
+find /tmp -maxdepth 1 -type f -name 'post-update-ollama-script-*.log' -mtime +7 -delete >/dev/null 2>&1
 
 # Logging function used by this script
 log() {
