@@ -65,12 +65,12 @@ Before using the scripts and Makefile in this repository, ensure you have the fo
    make test
    ```
 
-   Tests validate that each script exists, is executable, and passes a bash syntax check. Tests for scripts with unavailable dependencies are automatically skipped.
+   Tests validate that each script exists, is executable, and passes a bash syntax check. When required dependencies are available, tests may also briefly execute the script, which can have side effects (e.g. restarting services). Tests for scripts with unavailable dependencies are automatically skipped.
 
 ## Scripts Features
 
 ### test-scripts.sh
-Smoke test runner that checks each script for existence, executable permissions, and syntax validity. Tests requiring unavailable dependencies (Homebrew, Podman, Ollama) are automatically skipped.
+Smoke test runner that checks each script for existence, executable permissions, and syntax validity. When dependencies (Homebrew, Podman, Ollama) are available, it may briefly execute each script as part of the smoke check — which can have side effects. Tests requiring unavailable dependencies are automatically skipped.
 
 ### ollama.sh
 Script to restart the Ollama service with proper error handling, logging, and version checking.

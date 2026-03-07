@@ -40,16 +40,16 @@ else
     echo "INFO: No container to remove"
 fi
 
-# Remove existing image if it exists
+# Remove existing image(s) if they exist
 echo "INFO: Checking for existing image..."
-IMAGE_ID=$(podman images -q 'ghcr.io/open-webui/open-webui')
+mapfile -t IMAGE_IDS < <(podman images -q 'ghcr.io/open-webui/open-webui')
 
-if [ -n "$IMAGE_ID" ]; then
-    echo "INFO: Removing existing image..."
-    if podman rmi "$IMAGE_ID" >/dev/null 2>&1; then
-        echo "SUCCESS: Image removed successfully"
+if [ ${#IMAGE_IDS[@]} -gt 0 ]; then
+    echo "INFO: Removing existing image(s)..."
+    if podman rmi "${IMAGE_IDS[@]}" >/dev/null 2>&1; then
+        echo "SUCCESS: Image(s) removed successfully"
     else
-        echo "WARNING: Failed to remove image"
+        echo "WARNING: Failed to remove image(s)"
     fi
 else
     echo "INFO: No existing image found"

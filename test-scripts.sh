@@ -42,7 +42,8 @@ has_brew_and_ollama_formula() {
 }
 
 # Function to run a test
-# skip_condition should be the name of a function (without quotes) that returns 0 if the test should be skipped
+# skip_condition should be the name of a function (without quotes) that returns 0 when dependencies are
+# available and the test should run, and non-zero when the test should be skipped
 run_test() {
     local test_name="$1"
     local script="$2"
@@ -81,6 +82,12 @@ run_test() {
     
     # Check skip condition if provided (call the function by name)
     if [ -n "$skip_condition" ]; then
+        if ! declare -F "$skip_condition" >/dev/null 2>&1; then
+            echo -e "  ${RED}✗ FAILED${NC} - Unknown skip condition function: $skip_condition"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+            echo ""
+            return 1
+        fi
         if ! "$skip_condition"; then
             echo -e "  ${YELLOW}⊘ SKIPPED${NC} - Required dependency not available"
             SKIPPED_TESTS=$((SKIPPED_TESTS + 1))
