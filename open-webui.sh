@@ -42,11 +42,11 @@ fi
 
 # Remove existing image(s) if they exist
 echo "INFO: Checking for existing image..."
-mapfile -t IMAGE_IDS < <(podman images -q 'ghcr.io/open-webui/open-webui')
+IMAGE_IDS=$(podman images -q 'ghcr.io/open-webui/open-webui')
 
-if [ ${#IMAGE_IDS[@]} -gt 0 ]; then
+if [ -n "$IMAGE_IDS" ]; then
     echo "INFO: Removing existing image(s)..."
-    if podman rmi "${IMAGE_IDS[@]}" >/dev/null 2>&1; then
+    if echo "$IMAGE_IDS" | xargs podman rmi >/dev/null 2>&1; then
         echo "SUCCESS: Image(s) removed successfully"
     else
         echo "WARNING: Failed to remove image(s)"
@@ -57,7 +57,7 @@ fi
 
 # Pull and run the updated container
 echo "INFO: Pulling and running updated container..."
-if podman run -d -p 3000:8080 -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main; then
+if podman run -d -p 3000:8080 -v open-webui:/app/backend/data --name open-webui --restart always --pull=always ghcr.io/open-webui/open-webui:latest; then
     echo "SUCCESS: Open-WebUI container started successfully"
 else
     echo "ERROR: Failed to start Open-WebUI container"
