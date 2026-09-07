@@ -112,7 +112,10 @@ log "SUCCESS: OLLAMA_HOST=0.0.0.0 set in current launchd session"
 log "INFO: Restarting Ollama app..."
 osascript -e 'quit app "Ollama"' 2>/dev/null
 killall Ollama 2>/dev/null
-killall ollama 2>/dev/null
+# Target only the "ollama serve" daemon, not every process named "ollama" -
+# a plain `killall ollama` would also kill an unrelated `ollama run`/pull
+# happening in another terminal.
+pkill -f 'ollama serve' 2>/dev/null
 
 for i in $(seq 1 10); do
     lsof -iTCP:11434 -sTCP:LISTEN -n -P >/dev/null 2>&1 || break
@@ -120,6 +123,7 @@ for i in $(seq 1 10); do
 done
 if lsof -iTCP:11434 -sTCP:LISTEN -n -P >/dev/null 2>&1; then
     log_error "ERROR: port 11434 still held after quitting Ollama - a stale process may be stuck"
+    log_error "$(lsof -iTCP:11434 -sTCP:LISTEN -n -P 2>/dev/null)"
     exit 1
 fi
 
@@ -131,7 +135,7 @@ fi
 # Verify the new process actually bound to all interfaces before declaring success.
 BOUND=""
 for i in $(seq 1 15); do
-    if lsof -iTCP:11434 -sTCP:LISTEN -n -P 2>/dev/null | grep -q '\*:11434'; then
+    if lsof -iTCP:11434 -sTCP:LISTEN -n -P 2>/dev/null | grep -qE '(\*|0\.0\.0\.0):11434'; then
         BOUND=1
         break
     fi
